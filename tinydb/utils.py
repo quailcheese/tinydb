@@ -145,12 +145,11 @@ def freeze(obj):
     """
     Freeze an object by making it immutable and thus hashable.
     """
-    # Define a dictionary of type-specific freezing functions
-    freezers = {
-        dict: lambda x: FrozenDict((k, freeze(v)) for k, v in x.items()),
-        list: lambda x: tuple(freeze(el) for el in x),
-        set: lambda x: frozenset(x)
+    type_to_function = {
+        dict: lambda d: FrozenDict((k, freeze(v)) for k, v in d.items()),
+        list: lambda l: tuple(freeze(el) for el in l),
+        set: lambda s: frozenset(s),
     }
-    
-    # Get the freezer for the object type or return object as is if type not handled
-    return freezers.get(type(obj), lambda x: x)(obj)
+
+    transform = type_to_function.get(type(obj), lambda x: x)
+    return transform(obj)
